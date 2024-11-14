@@ -9,13 +9,14 @@
     fi
 
 
-## gpg --full-generate-key --expert
-Generate Keys with Sign, Encrypt, And Auth Capability
+## Generate Kunci GPG
+    gpg --full-generate-key --expert
 
-## Step 4
-gpg --list-keys --with-keygrip
+Pastikan Kunci memiliki fungsi Sign, Encrypt, Authentication
 
-Add Keygrip to ~/.gnupg/sshcontrol
 
-## Step 5
-ssh-add -L and export public key to server and authenticate !
+## Export Keygrip
+    gpg --list-keys --with-keygrip | grep "Keygrip =" | awk '{print $3}' | xargs -I{} sh -c 'sshcontrol_file="$HOME/.gnupg/sshcontrol"; [ ! -f "$sshcontrol_file" ] && touch "$sshcontrol_file" && chmod 600 "$sshcontrol_file"; grep -q "{}" "$sshcontrol_file" || echo "{}" >> "$sshcontrol_file" && echo "Keygrip {} telah ditambahkan ke $sshcontrol_file"'
+
+## Finishing
+    ssh-add -L > ~/.ssh/pub.key

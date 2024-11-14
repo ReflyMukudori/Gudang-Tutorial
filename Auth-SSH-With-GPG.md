@@ -4,9 +4,7 @@
 
 
 ## Tambahkan ENABLE-SSH-SUPPORT ke ~/.gnupg/gpg-agent.conf
-    if ! grep -q "enable-ssh-support" ~/.gnupg/gpg-agent.conf; then
-    echo 'enable-ssh-support' >> ~/.gnupg/gpg-agent.conf
-    fi
+    mkdir -p ~/.gnupg && touch ~/.gnupg/gpg-agent.conf && if ! grep -q "enable-ssh-support" ~/.gnupg/gpg-agent.conf; then echo 'enable-ssh-support' >> ~/.gnupg/gpg-agent.conf; fi
 
 
 ## Generate Kunci GPG

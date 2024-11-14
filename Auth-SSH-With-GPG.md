@@ -1,20 +1,18 @@
-## step One
+## Tambahkan ini ke ~/.bashrc
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 
 gpgconf --launch gpg-agent
 
-## Step Two
+## Tambahkan ke ~/.gnupg/gpg-agent.conf
+enable-ssh-support
+
+## gpg --full-generate-key --expert
 Generate Keys with Sign, Encrypt, And Auth Capability
 
-Use gpg --full-generate-key --expert
-
-## Step Three
-add enable-ssh-support to ~/.gnupg/gpg-agent.conf
-
-## Step Four
+## Step 4
 gpg --list-keys --with-keygrip
 
 Add Keygrip to ~/.gnupg/sshcontrol
 
-## Step Five
+## Step 5
 ssh-add -L and export public key to server and authenticate !

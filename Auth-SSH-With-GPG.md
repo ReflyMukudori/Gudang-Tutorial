@@ -6,6 +6,8 @@ gpgconf --launch gpg-agent
 ## Step Two
 Generate Keys with Sign, Encrypt, And Auth Capability
 
+Use gpg --full-generate-key --expert
+
 ## Step Three
 add enable-ssh-support to ~/.gnupg/gpg-agent.conf
 

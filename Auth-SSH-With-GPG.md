@@ -1,10 +1,15 @@
-## Tambahkan ini ke ~/.bashrc
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+## Tambahkan SSH_AUTH_SOCK ke ~/.bashrc
+echo 'export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)' >> ~/.bashrc
 
-gpgconf --launch gpg-agent
+echo 'gpgconf --launch gpg-agent' >> ~/.bashrc
 
-## Tambahkan ke ~/.gnupg/gpg-agent.conf
-enable-ssh-support
+
+## Tambahkan ENABLE-SSH-SUPPORT ke ~/.gnupg/gpg-agent.conf
+if ! grep -q "enable-ssh-support" ~/.gnupg/gpg-agent.conf; then
+
+    echo 'enable-ssh-support' >> ~/.gnupg/gpg-agent.conf
+
+fi
 
 ## gpg --full-generate-key --expert
 Generate Keys with Sign, Encrypt, And Auth Capability

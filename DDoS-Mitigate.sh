@@ -73,8 +73,7 @@ main() {
         if [[ "$line" == *"limiting requests"* ]]; then
             ip=$(echo "$line" | grep -oP '(?<=client: )[\d\.]+')
             if [[ -n "$ip" ]] && [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                add_to_database "$ip"
-                export_to_nginx_blocklist
+                add_to_database "$ip" && export_to_nginx_blocklist
             else
                 log_error "Invalid IP extracted: $ip"
             fi

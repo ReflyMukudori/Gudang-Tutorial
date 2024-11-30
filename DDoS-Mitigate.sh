@@ -1,5 +1,6 @@
 DATABASE_FILE="database.json"
 NGINX_ERROR_LOG="/home/data/safeline/logs/nginx/error.log"
+NGINX_BLOCKLIST_FILE="blocklist.conf"
 
 check_dependencies() {
     for cmd in jq tail grep date; do
@@ -13,6 +14,7 @@ check_dependencies() {
 init_database() {
     if [ ! -f "$DATABASE_FILE" ] || [ ! -s "$DATABASE_FILE" ]; then
         touch "$DATABASE_FILE"
+        touch "$NGINX_BLOCKLIST_FILE"
         echo '[]' > "$DATABASE_FILE"
     fi
 }
@@ -51,6 +53,14 @@ log_error() {
     echo "[ERROR] $1" >&2
 }
 
+export_to_nginx_blocklist() {
+    grep -oP '"ip_addr": "\K[^"]+' | while read -r ip; do
+    echo "deny $ip;" > "$NGINX_BLOCKLIST_FILE"
+    sed -i '$!N; /^\(.*\)\n\1$/D; P; D' "$NGINX_BLOCKLIST_FILE"
+    done
+}
+
+
 main() {
     check_dependencies
     init_database
@@ -64,6 +74,7 @@ main() {
             ip=$(echo "$line" | grep -oP '(?<=client: )[\d\.]+')
             if [[ -n "$ip" ]] && [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                 add_to_database "$ip"
+                export_to_nginx_blocklist
             else
                 log_error "Invalid IP extracted: $ip"
             fi

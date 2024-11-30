@@ -1,6 +1,5 @@
 DATABASE_FILE="database.json"
 NGINX_ERROR_LOG="/home/data/safeline/logs/nginx/error.log"
-NGINX_BLOCKLIST_FILE="blocklist.conf"
 
 check_dependencies() {
     for cmd in jq tail grep date; do
@@ -14,7 +13,6 @@ check_dependencies() {
 init_database() {
     if [ ! -f "$DATABASE_FILE" ] || [ ! -s "$DATABASE_FILE" ]; then
         touch "$DATABASE_FILE"
-        touch "$NGINX_BLOCKLIST_FILE"
         echo '[]' > "$DATABASE_FILE"
     fi
 }
@@ -47,17 +45,11 @@ add_to_database() {
     fi
 
     mv "$temp_file" "$DATABASE_FILE"
-    
-    grep -oP '"ip_addr": "\K[^"]+' "$DATABASE_FILE" | while read -r ip; do
-        echo "deny $ip;" > "$NGINX_BLOCKLIST_FILE"
-        sed -i '$!N; /^\(.*\)\n\1$/D; P; D' "$NGINX_BLOCKLIST_FILE"
-    done
 }
 
 log_error() {
     echo "[ERROR] $1" >&2
 }
-
 
 main() {
     check_dependencies

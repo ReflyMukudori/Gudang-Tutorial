@@ -1,5 +1,6 @@
 DATABASE_FILE="database.json"
 NGINX_ERROR_LOG="/home/data/safeline/logs/nginx/error.log"
+NGINX_BLOCKLIST_FILE="blocklist.conf"
 
 check_dependencies() {
     for cmd in jq tail grep date; do
@@ -15,6 +16,18 @@ init_database() {
         touch "$DATABASE_FILE"
         echo '[]' > "$DATABASE_FILE"
     fi
+}
+
+export_to_nginx_blocklist() {
+    local temp_blocklist=$(mktemp)
+
+    jq -r '.[].ip_addr' "$DATABASE_FILE" | sort -u | while read -r ip; do
+        echo "deny $ip;" >> "$temp_blocklist"
+    done
+
+    mv "$temp_blocklist" "$NGINX_BLOCKLIST_FILE"
+
+    docker exec -it safeline-tengine nginx -s reload
 }
 
 add_to_database() {
@@ -45,6 +58,8 @@ add_to_database() {
     fi
 
     mv "$temp_file" "$DATABASE_FILE"
+    
+    export_to_nginx_blocklist
 }
 
 log_error() {

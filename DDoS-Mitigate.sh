@@ -47,17 +47,15 @@ add_to_database() {
     fi
 
     mv "$temp_file" "$DATABASE_FILE"
+    
+    grep -oP '"ip_addr": "\K[^"]+' "$DATABASE_FILE" | while read -r ip; do
+        echo "deny $ip;" > "$NGINX_BLOCKLIST_FILE"
+        sed -i '$!N; /^\(.*\)\n\1$/D; P; D' "$NGINX_BLOCKLIST_FILE"
+    done
 }
 
 log_error() {
     echo "[ERROR] $1" >&2
-}
-
-export_to_nginx_blocklist() {
-    grep -oP '"ip_addr": "\K[^"]+' | while read -r ip; do
-    echo "deny $ip;" > "$NGINX_BLOCKLIST_FILE"
-    sed -i '$!N; /^\(.*\)\n\1$/D; P; D' "$NGINX_BLOCKLIST_FILE"
-    done
 }
 
 
@@ -73,7 +71,7 @@ main() {
         if [[ "$line" == *"limiting requests"* ]]; then
             ip=$(echo "$line" | grep -oP '(?<=client: )[\d\.]+')
             if [[ -n "$ip" ]] && [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                add_to_database "$ip" && export_to_nginx_blocklist
+                add_to_database "$ip"
             else
                 log_error "Invalid IP extracted: $ip"
             fi
